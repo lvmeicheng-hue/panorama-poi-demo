@@ -104,27 +104,33 @@ body { background: #111; }
 <div id="panorama"></div>
 
 <script>
-// Pin SVG 图标
-var pinWhite = '<svg viewBox="0 0 24 24" fill="none"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="currentColor"/><circle cx="12" cy="9" r="2.5" fill="white"/></svg>';
+// 蓝色圆形+建筑图标（中国电信/优印堂/同济欣苑）
+var svgBuilding = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="10" width="16" height="11" rx="1" fill="white"/><rect x="9" y="4" width="6" height="7" rx="1" fill="white"/><rect x="9" y="14" width="2.5" height="3.5" rx="0.5" fill="#4A9BE8"/><rect x="12.5" y="14" width="2.5" height="3.5" rx="0.5" fill="#4A9BE8"/><rect x="7" y="13" width="2" height="2" rx="0.3" fill="#4A9BE8"/><rect x="15" y="13" width="2" height="2" rx="0.3" fill="#4A9BE8"/></svg>';
 
-function makePOI(div, text, style) {
-    var color = style === 'blue' ? '#1673d2' : '#555';
-    div.innerHTML = '<div class="poi poi-' + style + '">' +
-        '<span class="pin" style="color:' + (style === 'blue' ? '#fff' : color) + '">' + pinWhite + '</span>' +
-        text +
-        '</div>';
-}
+// 紫色圆形+购物袋图标（罗森便利店/绿源电动车）
+var svgBag = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9h12l-1.5 10H7.5L6 9z" fill="white"/><path d="M9 9V7a3 3 0 016 0v2" stroke="white" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg>';
 
-function makeIconPOI(div, emoji, text, bgColor) {
+// 带图标的圆形POI
+function makeCirclePOI(div, svgIcon, text, bgColor) {
     div.innerHTML = '<div class="poi-icon">' +
-        '<div class="circle" style="background:' + bgColor + '">' + emoji + '</div>' +
+        '<div class="circle" style="background:' + bgColor + ';width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.35);">' +
+        '<div style="width:26px;height:26px;">' + svgIcon + '</div>' +
+        '</div>' +
         '<div class="label">' + text + '</div>' +
         '</div>';
 }
 
+// 益丰大药房专用蓝色文字标签
+var pinWhite = '<svg viewBox="0 0 24 24" fill="none"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="currentColor"/><circle cx="12" cy="9" r="2.5" fill="white"/></svg>';
+function makePOI(div, text, style) {
+    div.innerHTML = '<div class="poi poi-' + style + '">' +
+        '<span class="pin" style="color:#fff">' + pinWhite + '</span>' +
+        text + '</div>';
+}
+
 var viewer = pannellum.viewer('panorama', {
     type: 'equirectangular',
-    panorama: 'panorama.jpg',
+    panorama: 'https://ai-real-scene.oss-cn-zhangjiakou-gd.aliyuncs.com/project_out/publish/1116430471/pano-merge/1022331-BX10035459/v1/panorama.png',
     autoLoad: true,
     compass: false,
     showZoomCtrl: true,
@@ -137,56 +143,33 @@ var viewer = pannellum.viewer('panorama', {
     hotSpotDebug: false,
 
     hotSpots: [
-        // ===== 益丰大药房 - 蓝色醒目样式 =====
+        // ===== 益丰大药房 - 蓝色文字标签 =====
         {
-            pitch: 7,
-            yaw: -131,
-            type: 'info',
-            createTooltipFunc: function(div) {
-                makePOI(div, '益丰大药房 (政立路)', 'blue');
-            }
+            pitch: 7, yaw: -131, type: 'info',
+            createTooltipFunc: function(div) { makePOI(div, '益丰大药房 (政立路)', 'blue'); }
         },
-        // ===== 其他POI - 白色常规样式 =====
+        // ===== 蓝色圆形+建筑图标 =====
         {
-            pitch: 7,
-            yaw: -168,
-            type: 'info',
-            createTooltipFunc: function(div) {
-                makePOI(div, '中国电信', 'white');
-            }
+            pitch: 7, yaw: -168, type: 'info',
+            createTooltipFunc: function(div) { makeCirclePOI(div, svgBuilding, '中国电信', '#4A9BE8'); }
         },
         {
-            pitch: 7,
-            yaw: -150,
-            type: 'info',
-            createTooltipFunc: function(div) {
-                makePOI(div, '优印堂数码印刷', 'white');
-            }
+            pitch: 7, yaw: -150, type: 'info',
+            createTooltipFunc: function(div) { makeCirclePOI(div, svgBuilding, '优印堂数码印刷', '#4A9BE8'); }
+        },
+        // ===== 紫色圆形+购物袋图标 =====
+        {
+            pitch: 7, yaw: -108, type: 'info',
+            createTooltipFunc: function(div) { makeCirclePOI(div, svgBag, '罗森便利店', '#9C4FD4'); }
         },
         {
-            pitch: 7,
-            yaw: -108,
-            type: 'info',
-            createTooltipFunc: function(div) {
-                makePOI(div, '罗森便利店', 'white');
-            }
+            pitch: 7, yaw: -83, type: 'info',
+            createTooltipFunc: function(div) { makeCirclePOI(div, svgBag, '绿源电动车', '#9C4FD4'); }
         },
+        // ===== 蓝色圆形+建筑图标（同济欣苑）=====
         {
-            pitch: 7,
-            yaw: -83,
-            type: 'info',
-            createTooltipFunc: function(div) {
-                makePOI(div, '绿源电动车', 'white');
-            }
-        },
-        // ===== 圆形图标POI =====
-        {
-            pitch: 28,
-            yaw: -138,
-            type: 'info',
-            createTooltipFunc: function(div) {
-                makeIconPOI(div, '🏢', '同济铂苑', 'rgba(80,80,80,0.8)');
-            }
+            pitch: 28, yaw: -138, type: 'info',
+            createTooltipFunc: function(div) { makeCirclePOI(div, svgBuilding, '同济欣苑', '#4A9BE8'); }
         }
     ]
 });
