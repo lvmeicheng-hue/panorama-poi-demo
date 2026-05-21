@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>全景图POI戳点样式Demo</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css">
+<script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #111; }
+#panorama { width: 100vw; height: 100vh; }
+
+/* 隐藏默认热点样式 */
+.pnlm-hotspot { background: none !important; border: none !important; width: auto !important; height: auto !important; }
+.pnlm-hotspot .pnlm-sprite { display: none !important; }
+.pnlm-tooltip { display: none !important; }
+
+/* POI标签基础样式 */
+.poi {
+    display: flex; align-items: center; gap: 6px;
+    padding: 7px 14px 7px 10px;
+    border-radius: 20px;
+    font-size: 13px; font-weight: 500; font-family: "PingFang SC", -apple-system, sans-serif;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+    pointer-events: auto;
+}
+.poi:hover { transform: scale(1.08); }
+
+/* Pin图标 */
+.poi .pin {
+    width: 18px; height: 18px; min-width: 18px;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+}
+.poi .pin svg { width: 18px; height: 18px; }
+
+/* 蓝色醒目样式 - 益丰大药房专用 */
+.poi-blue {
+    background: rgba(22, 115, 210, 0.95);
+    color: #fff;
+    font-size: 14px; font-weight: 600;
+    padding: 8px 16px 8px 12px;
+    box-shadow: 0 2px 12px rgba(22, 115, 210, 0.5);
+}
+
+/* 白色常规样式 - 其他POI */
+.poi-white {
+    background: rgba(255, 255, 255, 0.92);
+    color: #333;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.25);
+}
+
+/* 圆形图标样式 */
+.poi-icon {
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 4px;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+    pointer-events: auto;
+}
+.poi-icon:hover { transform: scale(1.1); }
+.poi-icon .circle {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+.poi-icon .label {
+    font-size: 11px; font-weight: 500;
+    font-family: "PingFang SC", sans-serif;
+    color: #fff;
+    background: rgba(0,0,0,0.55);
+    padding: 2px 8px;
+    border-radius: 10px;
+    white-space: nowrap;
+}
+
+.top-bar {
+    position: fixed; top: 0; left: 0; right: 0;
+    background: rgba(0,0,0,0.5); color: #fff;
+    padding: 10px 20px; font-size: 13px; z-index: 999;
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: "PingFang SC", sans-serif;
+}
+.top-bar .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 10px;
+    font-size: 11px; margin-left: 8px;
+}
+.badge-blue { background: rgba(22, 115, 210, 0.9); }
+.badge-white { background: rgba(255,255,255,0.2); }
+</style>
+</head>
+<body>
+<div class="top-bar">
+    <span>18号线 上海财经大学站 4号口 全景图</span>
+    <span>
+        <span class="badge badge-blue">蓝色 = 新样式</span>
+        <span class="badge badge-white">白色 = 原样式</span>
+    </span>
+</div>
+<div id="panorama"></div>
+
+<script>
+// Pin SVG 图标
+var pinWhite = '<svg viewBox="0 0 24 24" fill="none"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="currentColor"/><circle cx="12" cy="9" r="2.5" fill="white"/></svg>';
+
+function makePOI(div, text, style) {
+    var color = style === 'blue' ? '#1673d2' : '#555';
+    div.innerHTML = '<div class="poi poi-' + style + '">' +
+        '<span class="pin" style="color:' + (style === 'blue' ? '#fff' : color) + '">' + pinWhite + '</span>' +
+        text +
+        '</div>';
+}
+
+function makeIconPOI(div, emoji, text, bgColor) {
+    div.innerHTML = '<div class="poi-icon">' +
+        '<div class="circle" style="background:' + bgColor + '">' + emoji + '</div>' +
+        '<div class="label">' + text + '</div>' +
+        '</div>';
+}
+
+var viewer = pannellum.viewer('panorama', {
+    type: 'equirectangular',
+    panorama: 'panorama_original.png',
+    autoLoad: true,
+    compass: false,
+    showZoomCtrl: true,
+    showFullscreenCtrl: true,
+    hfov: 100,
+    pitch: 5,
+    yaw: -130,
+    minHfov: 50,
+    maxHfov: 120,
+    hotSpotDebug: false,
+
+    hotSpots: [
+        // ===== 益丰大药房 - 蓝色醒目样式 =====
+        {
+            pitch: 7,
+            yaw: -131,
+            type: 'info',
+            createTooltipFunc: function(div) {
+                makePOI(div, '益丰大药房 (政立路)', 'blue');
+            }
+        },
+        // ===== 其他POI - 白色常规样式 =====
+        {
+            pitch: 7,
+            yaw: -168,
+            type: 'info',
+            createTooltipFunc: function(div) {
+                makePOI(div, '中国电信', 'white');
+            }
+        },
+        {
+            pitch: 7,
+            yaw: -150,
+            type: 'info',
+            createTooltipFunc: function(div) {
+                makePOI(div, '优印堂数码印刷', 'white');
+            }
+        },
+        {
+            pitch: 7,
+            yaw: -108,
+            type: 'info',
+            createTooltipFunc: function(div) {
+                makePOI(div, '罗森便利店', 'white');
+            }
+        },
+        {
+            pitch: 7,
+            yaw: -83,
+            type: 'info',
+            createTooltipFunc: function(div) {
+                makePOI(div, '绿源电动车', 'white');
+            }
+        },
+        // ===== 圆形图标POI =====
+        {
+            pitch: 28,
+            yaw: -138,
+            type: 'info',
+            createTooltipFunc: function(div) {
+                makeIconPOI(div, '🏢', '同济铂苑', 'rgba(80,80,80,0.8)');
+            }
+        }
+    ]
+});
+</script>
+</body>
+</html>
